@@ -5,14 +5,12 @@ CREATE OR REPLACE FUNCTION sieve_of_eratosthenes(int) RETURNS SETOF int AS $$
         SELECT generate_series(2, $1)
     ),
     t2 (n, i) AS (
-        --初期化:2で割り切れない集合を作成
+        --初期化
         SELECT
             n
-            ,2
-        FROM 
+            ,1
+        FROM
             t1
-        WHERE 
-            (n%2) <> 0
         --再起:再起集合内の最小値で割り切れる値を除いた集合を新たに再起集合とする
         UNION ALL(
             --再起集合をコピー（再起集合は再起部で一度しか呼び出せないため）
@@ -40,11 +38,13 @@ CREATE OR REPLACE FUNCTION sieve_of_eratosthenes(int) RETURNS SETOF int AS $$
                 AND k*k < $1 --√nで再起を終了
         )
     )
-    --除数に用いた数は素数
+    --除数に用いた数は素数(1以外)
     SELECT DISTINCT
         i AS n
     FROM
         t2
+    WHERE
+        i <> 1
     UNION
     --最後に残った集合も素数
     SELECT
@@ -101,7 +101,7 @@ WHERE
 )
 SELECT
     CASE
-    WHEN result[1] IS NULL THEN ARRAY[$1]
+        WHEN result[1] IS NULL THEN ARRAY[$1]
         WHEN min = 1 THEN result
         ELSE array_append(result, min)
     END
