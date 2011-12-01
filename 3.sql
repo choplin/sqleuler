@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION sieve_of_eratosthenes(int) RETURNS SETOF int AS $$
+CREATE OR REPLACE FUNCTION sieve_of_eratosthenes(bigint) RETURNS SETOF bigint AS $$
     WITH RECURSIVE
     --数列を用意
     t1(n) AS (
@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION sieve_of_eratosthenes(int) RETURNS SETOF int AS $$
         --初期化
         SELECT
             n
-            ,1
+            ,1::bigint
         FROM
             t1
         --再起:再起集合内の最小値で割り切れる値を除いた集合を新たに再起集合とする
@@ -57,16 +57,16 @@ CREATE OR REPLACE FUNCTION sieve_of_eratosthenes(int) RETURNS SETOF int AS $$
         n
 $$ LANGUAGE SQL IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION prime_factorization (int) RETURNS int[] AS $$
+CREATE OR REPLACE FUNCTION prime_factorization (bigint) RETURNS bigint[] AS $$
 WITH RECURSIVE prime(ary) AS (
     SELECT
         array_agg(num) AS ary
     FROM
-        sieve_of_eratosthenes(trunc(sqrt($1))::int) AS t(num) 
+        sieve_of_eratosthenes(trunc(sqrt($1))::bigint) AS t(num) 
 )
 ,factorization AS(
     SELECT
-        1 AS prime
+        1::bigint AS prime
         ,$1 AS quotient
         ,1 AS idx
         ,FALSE AS flag
